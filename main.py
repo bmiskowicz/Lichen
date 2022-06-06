@@ -12,8 +12,9 @@ surface = create_example_window('Projekt - Liszaj', (1080, 720))
 
 
 class Model:
+    stop=0
     running = True
-    param_size = [[10, 100], [25, 40], [50, 20], [100, 10], [250, 4], [500, 2]] #number of points and pixels
+    param_size = [[10, 100], [20, 50], [50, 20], [100, 10], [200, 5], [500, 2]] #number of points and pixels
     tab = numpy.zeros((2, param_size[1][0], param_size[1][0]))
     menu=None
     diff = None
@@ -47,55 +48,44 @@ class Button:
 
 
 def set_difficulty(selected: Tuple, value: Any) -> None:
-    """
-    Set the difficulty of the simulation.
-    """
-    print(f'Set difficulty to {selected[0]} ({value})')
-
+    ""
 
 def set_probability(selected: Tuple, value: Any) -> None:
-    """
-    Set the size of the simulation.
-    """
-    print(f'Set size to {selected[0]} ({value})')
-
+    ""
 
 def set_size(selected: Tuple, value: Any) -> None:
-    """
-    Set the size of the simulation.
-    """
-    print(f'Set size to {selected[0]} ({value})')
+    ""
 
 
-def logic(size):
+def logic():
     "main logic of the simulation"
-    buttonMenu.show()
+    for i in buttons:
+        i.show()
 
-    k = 0
-    l = 0
+    l = Model.param_size[Model.size][1]
     # drawing the cells
-    for i in range(10, Model.param_size[size][1] * Model.param_size[size][0], Model.param_size[size][1] + 1):
-        for j in range(10, Model.param_size[size][1] * Model.param_size[size][0], Model.param_size[size][1] + 1):
-            if(Model.tab[0][k][l]==0):
-                pygame.draw.rect(surface, "yellow", pygame.Rect(i, j, Model.param_size[size][1], Model.param_size[size][1]))
-            if (Model.tab[0][k][l] == 1):
-                pygame.draw.rect(surface, "red", pygame.Rect(i, j, Model.param_size[size][1], Model.param_size[size][1]))
-            if (Model.tab[0][k][l] == 2):
-                pygame.draw.rect(surface, "grey", pygame.Rect(i, j, Model.param_size[size][1], Model.param_size[size][1]))
-            l=l+1
-        k=k+1
-        l=0
-    k=0
+    for i in range(0, Model.param_size[Model.size][0]-1):
+        for j in range(0, Model.param_size[Model.size][0]-1):
+            if(Model.tab[0][i][j]==0):
+                pygame.draw.rect(surface, "yellow", pygame.Rect(i*l, j*l, l, l))
+            if (Model.tab[0][i][j] == 1):
+                pygame.draw.rect(surface, "red", pygame.Rect(i*l, j*l, l, l))
+            if (Model.tab[0][i][j] == 2):
+                pygame.draw.rect(surface, "grey", pygame.Rect(i*l, j*l, l, l))
+
+
+
 
     pygame.display.flip()
 
 
+    k = 0
     i = 0
     j = 0
     # drawing the cells
     newtab = Model.tab.copy()
-    for i in range(0, Model.param_size[size][0]):
-        for j in range(0, Model.param_size[size][0]):
+    for i in range(0, Model.param_size[Model.size][0]):
+        for j in range(0, Model.param_size[Model.size][0]):
             neighbours=[]
             if(Model.tab[1][i][j]==0):
                 if Model.tab[0][i][j]==2: 
@@ -111,16 +101,16 @@ def logic(size):
                 newtab[1][i][j]=newtab[1][i][j]-1
                 
                 if(Model.tab[0][i][j]==1):
-                    if i%Model.param_size[size][0]!=Model.param_size[size][0]-1: 
+                    if i%Model.param_size[Model.size][0]!=Model.param_size[Model.size][0]-1: 
                         if(Model.tab[0][i+1][j]==0): neighbours.append([i+1,j])
 
-                    if i%Model.param_size[size][0]!=0:
+                    if i%Model.param_size[Model.size][0]!=0:
                         if(Model.tab[0][i-1][j]==0): neighbours.append([i-1,j])
 
                     if j>0:
                         if(Model.tab[0][i][j-1]==0): neighbours.append([i,j-1])
 
-                    if j<Model.param_size[size][0]-1:
+                    if j<Model.param_size[Model.size][0]-1:
                         if(Model.tab[0][i][j+1]==0): neighbours.append([i,j+1])
 
                     for k in range(len(neighbours)):
@@ -139,9 +129,9 @@ def start_the_simulation():
     main function of the simulation 
     """
     #getting the global variables
-    diff = Model.diff.get_value()[1]
-    size = Model.size.get_value()[1]
-    prob = Model.prob.get_value()[1]
+    Model.diff = Model.diff.get_value()[1]
+    Model.size = Model.size.get_value()[1]
+    Model.prob = Model.prob.get_value()[1]
     simulation_name = Model.simulation_name.get_value()
 
     #creating the window
@@ -151,26 +141,33 @@ def start_the_simulation():
     pygame.display.set_caption(simulation_name)
     screen.fill(background_colour)
 
+    l = Model.param_size[Model.size][0]
     #parameters for simulation
-    Model.tab = numpy.zeros((2, Model.param_size[size][0], Model.param_size[size][0]))
-    Model.tab[0][int(Model.param_size[size][0]/2)][int(Model.param_size[size][0]/2)] = 1  #tab[0][]][] - table of states
-    Model.tab[1][int(Model.param_size[size][0]/2)][int(Model.param_size[size][0]/2)] = 2  #tab[0][]][] - table of remaining times
+    Model.tab = numpy.zeros((2, Model.param_size[Model.size][0], Model.param_size[Model.size][0]))
+    Model.tab[0][int(Model.param_size[Model.size][0]/2)][int(Model.param_size[Model.size][0]/2)] = 1  #tab[0][]][] - table of states
+    Model.tab[1][int(Model.param_size[Model.size][0]/2)][int(Model.param_size[Model.size][0]/2)] = 2  #tab[0][]][] - table of remaining times
     
-    logic(size)
+    logic()
 
     #getting windows events
     timeStart = time.process_time()
     Model.running =True
-    buttonMenu.show()
+
+    for i in buttons:
+        i.show()
+    
+
     while Model.running:
+        screen.fill(background_colour)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 Model.running = False
-            buttonMenu.click(event)
+            for i in buttons:
+                i.click(event)
 
-        if time.process_time()-timeStart>1:
-            logic(size)
+        if time.process_time()-timeStart>0.1:
+            logic()
             timeStart = time.process_time()
         
 
@@ -182,7 +179,6 @@ def export_param() -> None:
 
 
 def start():
-    
     surface = create_example_window('Projekt - Liszaj', (1080, 720))
     Model.menu = pygame_menu.Menu(
     height=720,
@@ -191,10 +187,12 @@ def start():
     width=1080
     )
 
+    Model.param_size = [[10, 100], [25, 40], [50, 20], [100, 10], [250, 4], [500, 2]]
+
     Model.simulation_name = Model.menu.add.text_input('Nazwa symulacji: ', default='liszaj01', maxchar=36)
     Model.diff = Model.menu.add.selector('Tempo propagacji choroby: ', [('Powoli', 1), ('Umiarkowanie', 2), ('Szybko (OSTROŻNIE)', 3)], onchange=set_difficulty)
-    Model.size = Model.menu.add.selector('Wielkość powierzchni skóry: ', [('10x10', 1), ('25x25', 2), ('50x50', 3), ('100x100', 4), ('250x250', 5), ('500x500', 6)], onchange=set_size)
-    Model.prob = Model.menu.add.selector('Prawdopodobieństwo zakażenia: ', [('10%', 1), ('25%', 2), ('50%', 3), ('75%', 4), ('90%', 5)], onchange=set_probability)
+    Model.size = Model.menu.add.selector('Wielkość powierzchni skóry: ', [('10x10', 1), ('20x20', 2), ('50x50', 3), ('100x100', 4), ('200x200', 5), ('500x500', 6)], onchange=set_size)
+    Model.prob = Model.menu.add.selector('Prawdopodobieństwo zakażenia: ', [('50%', 1), ('75%', 2), ('90%', 3), ('10%', 4), ('25%', 5)], onchange=set_probability)
 
 
     Model.menu.add.button('Rozpocznij', start_the_simulation)
@@ -205,6 +203,44 @@ def start():
     Model.menu.mainloop(surface)
 
 
-buttonMenu = Button(start, "Back to menu", 1350, 800, 200, 40, font=30, bg=(242, 255, 204))
+def resize(val, valSize):
+        newtab =  Model.tab.copy()
+        Model.param_size[Model.size][0] = Model.param_size[Model.size][0]+val
+        Model.param_size[Model.size][1] = int(1000/Model.param_size[Model.size][0])
+        newtab2 = numpy.zeros((2, Model.param_size[Model.size][0], Model.param_size[Model.size][0]))
+        Model.tab.resize((2, Model.param_size[Model.size][0], Model.param_size[Model.size][0]), refcheck=False)
+        Model.tab=newtab2.copy()
+        for k in range(2):
+            for i in range(Model.param_size[Model.size][0]+valSize):
+                for j in range(Model.param_size[Model.size][0]+valSize):
+                    Model.tab[k][i][j]=newtab[k][i][j]
+
+
+def sizeUp():
+    if(Model.param_size[Model.size][0]<500):
+        resize(10, -10)
+
+
+def sizeDown():
+    if(Model.param_size[Model.size][0]>10):
+        resize(-10, 0)
+
+
+def reset():
+    Model.param_size = [[10, 100], [25, 40], [50, 20], [100, 10], [250, 4], [500, 2]]
+    newtab =  numpy.zeros((2, Model.param_size[Model.size][0], Model.param_size[Model.size][0]))
+    Model.tab = newtab.copy()
+
+def clear():
+    newtab =  numpy.zeros((2, Model.param_size[Model.size][0], Model.param_size[Model.size][0]))
+    Model.tab = newtab.copy()
+
+
+buttons = []
+buttons.append(Button(start, "Back to menu", 1350, 800, 200, 40, font=30, bg=(242, 255, 204)))
+buttons.append(Button(sizeUp, "Size + 10", 1350, 600, 200, 40, font=30, bg=(242, 255, 204)))
+buttons.append(Button(sizeDown, "Size - 10", 1350, 700, 200, 40, font=30, bg=(242, 255, 204)))
+buttons.append(Button(reset, "Reset", 1350, 500, 200, 40, font=30, bg=(242, 255, 204)))
+buttons.append(Button(clear, "Clear", 1350, 400, 200, 40, font=30, bg=(242, 255, 204)))
 
 start()
