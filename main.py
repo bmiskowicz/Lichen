@@ -52,7 +52,7 @@ class Model:
     tab = numpy.zeros((2, param_size[1][0], param_size[1][0]))
     menu=None
     diff = None
-    size = None
+    size = 1
     prob = None
     simulation_name = None
 
@@ -189,6 +189,10 @@ def drawGraph():
 def saveGraph():
     plt.savefig(Model.simulation_name.get_value() + '.png', bbox_inches='tight')
 
+def drawButtons():
+    for i in buttons:
+        i.show()
+
 
 def drawCells():
     l = Model.param_size[Model.size][1]
@@ -239,8 +243,7 @@ def changeSurface():
 
 def logic():
     "main logic of the simulation"
-    for i in buttons:
-        i.show()
+    drawButtons()
     printText()
 
     drawCells()
@@ -302,6 +305,10 @@ def logic():
 
 
 def start_the_simulation():
+    Graph.red=[]
+    Graph.yellow=[]
+    Graph.grey=[]
+
     #getting the global variables
     Model.diff = Model.diff_tab[Model.diff.get_value()[1]]
     Model.size = Model.size.get_value()[1]
@@ -327,8 +334,7 @@ def start_the_simulation():
     timeStart = time.process_time()
     Model.running =True
 
-    for i in buttons:
-        i.show()
+    drawButtons()
     printText()
     
 
@@ -338,8 +344,7 @@ def start_the_simulation():
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if pygame.mouse.get_pressed()[0] and Model.stop==0:
-                    changeSurface()
-              
+                    changeSurface()     
 
             if event.type == pygame.QUIT:
                 Model.running = False
@@ -351,11 +356,19 @@ def start_the_simulation():
                 logic()
                 
                 timeStart = time.process_time()
-        
+        else: 
+            printText()
+            drawCells()
+            drawButtons()
+            drawGraph()
+            pygame.display.flip()
 
 
 
 def start():
+    Model.tab =  numpy.zeros((2, 10, 10))
+    reset()
+
     surface = create_example_window('Projekt - Liszaj', (1080, 720))
     Model.menu = pygame_menu.Menu(
     height=720,
